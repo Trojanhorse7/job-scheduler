@@ -82,6 +82,8 @@ docs/           Architecture notes
 
 ## Architecture
 
+Full write-up: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ### System Overview
 ![System Overview](docs/System%20Overview.png)
 

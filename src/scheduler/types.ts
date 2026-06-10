@@ -13,13 +13,16 @@ export interface QueueJob {
 /**
  * Comparator for the min-heap and timing-wheel slot ordering.
  * Primary key: effectivePriority ascending (1 = High runs first).
- * Secondary key: scheduledAt ascending (FIFO within the same priority).
+ * Secondary key: scheduledAt ascending.
+ * Tertiary key: createdAt ascending (FIFO when priority and schedule match).
  */
 export function compareJobs(a: QueueJob, b: QueueJob): number {
   if (a.effectivePriority !== b.effectivePriority) {
     return a.effectivePriority - b.effectivePriority;
   }
-  return a.scheduledAt.getTime() - b.scheduledAt.getTime();
+  const sched = a.scheduledAt.getTime() - b.scheduledAt.getTime();
+  if (sched !== 0) return sched;
+  return a.createdAt.getTime() - b.createdAt.getTime();
 }
 
 /**
