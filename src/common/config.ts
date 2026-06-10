@@ -1,0 +1,12 @@
+export const MAX_RETRIES = Number(process.env.MAX_RETRIES ?? 3);
+export const BACKOFF_BASE_SECONDS = Number(process.env.BACKOFF_BASE_SECONDS ?? 5);
+export const BACKOFF_JITTER_RATIO = Number(process.env.BACKOFF_JITTER_RATIO ?? 0.2);
+export const AGING_THRESHOLD_SECONDS = Number(process.env.AGING_THRESHOLD_SECONDS ?? 60);
+export const DLQ_ALERT_THRESHOLD = Number(process.env.DLQ_ALERT_THRESHOLD ?? 10);
+export const STALE_LOCK_MS = Number(process.env.STALE_LOCK_MS ?? 60_000);
+export const WORKER_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY ?? 4);
+export const DISPATCH_POLL_INTERVAL_MS = Number(process.env.DISPATCH_POLL_INTERVAL_MS ?? 500);
+export const DISPATCH_CANDIDATE_LIMIT = Number(process.env.DISPATCH_CANDIDATE_LIMIT ?? 200);
+export const HANDLER_FAILURE_RATE = Number(process.env.HANDLER_FAILURE_RATE ?? 0.1);
+export const SCHEDULER_ALGORITHM = (process.env.SCHEDULER_ALGORITHM ?? 'heap') as 'heap' | 'timing_wheel';
+export const API_PORT = Number(process.env.API_PORT ?? 4000);
