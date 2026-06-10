@@ -124,12 +124,12 @@ export default function App() {
 
 function Dashboard({ stats }: { stats: JobStats }) {
   const items = [
-    { label: 'pending', count: stats.pending },
-    { label: 'processing', count: stats.processing },
-    { label: 'completed', count: stats.completed },
-    { label: 'failed', count: stats.failed },
-    { label: 'cancelled', count: stats.cancelled },
-    { label: 'dlq', count: stats.dlq },
+    { label: 'pending',    count: stats.pending    ?? 0 },
+    { label: 'processing', count: stats.processing ?? 0 },
+    { label: 'completed',  count: stats.completed  ?? 0 },
+    { label: 'failed',     count: stats.failed     ?? 0 },
+    { label: 'cancelled',  count: stats.cancelled  ?? 0 },
+    { label: 'dlq',        count: stats.dlq        ?? 0 },
   ];
 
   return (

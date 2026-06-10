@@ -7,13 +7,14 @@
 }
 
 :root {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --border: #334155;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  --bg:           #09090b;   /* zinc-950 — near-black, no blue tint */
+  --surface:      #18181b;   /* zinc-900 */
+  --surface-alt:  #1f1f23;   /* zinc-850 — hover / alternate rows */
+  --border:       #27272a;   /* zinc-800 */
+  --text:         #fafafa;   /* zinc-50 */
+  --muted:        #a1a1aa;   /* zinc-400 */
+  --accent:       #22c55e;   /* green-500 */
+  --accent-hover: #16a34a;   /* green-600 */
 }
 
 body {
@@ -81,9 +82,15 @@ nav button {
   font-size: 0.875rem;
 }
 
+nav button:hover:not(.active) {
+  border-color: var(--muted);
+}
+
 nav button.active {
   background: var(--accent);
   border-color: var(--accent);
+  color: #09090b;
+  font-weight: 600;
 }
 
 .stats-grid {
@@ -140,6 +147,11 @@ th, td {
 th {
   color: var(--muted);
   font-weight: 500;
+  background: var(--bg);
+}
+
+tr:hover td {
+  background: var(--surface-alt);
 }
 
 .status-badge {
@@ -206,8 +218,8 @@ textarea {
 }
 
 .error-box {
-  background: #450a0a;
-  border: 1px solid #ef4444;
+  background: #1c0a0a;
+  border: 1px solid #b91c1c;
   border-radius: 6px;
   padding: 0.75rem;
   font-size: 0.8125rem;
@@ -282,15 +294,15 @@ textarea {
 }
 
 .toast-error {
-  background: #450a0a;
-  border: 1px solid #ef4444;
+  background: #1c0a0a;
+  border: 1px solid #b91c1c;
   color: #fca5a5;
 }
 
 .toast-info {
-  background: #0c1a3a;
-  border: 1px solid #3b82f6;
-  color: #93c5fd;
+  background: #1a1a1a;
+  border: 1px solid #52525b;
+  color: #d4d4d8;
 }
 
 button:disabled {
