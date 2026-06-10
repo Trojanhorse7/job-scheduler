@@ -21,14 +21,19 @@ A production-grade background job scheduler built with NestJS, PostgreSQL, and R
 
 ```bash
 cp .env.example .env
-docker compose up -d          # PostgreSQL + Redis
-npm install
-npm run dev                   # API on :4000  +  worker in parallel
-npm run dev:frontend          # React UI on :5173
-npm run benchmark             # heap vs timing-wheel comparison
+docker compose up -d                 # PostgreSQL + Redis
+npm install                          # backend deps
+npm install --prefix frontend        # frontend deps (one-time)
+npm run dev                          # API on :4000  +  worker in parallel
+npm run dev:frontend                 # React UI on :5173
+npm run benchmark                    # heap vs timing-wheel comparison
 ```
 
-API docs: http://localhost:4000/api/docs
+| URL | Description |
+|-----|-------------|
+| http://localhost:5173 | React dashboard |
+| http://localhost:4000/api/docs | Swagger / API docs |
+| http://localhost:4000/api/health | Health check |
 
 ## Project Layout
 
@@ -65,6 +70,11 @@ docs/           Architecture notes
 | POST | `/api/dlq/:id/retry` | Re-queue a DLQ job |
 | POST | `/api/workflows` | Create a DAG workflow |
 | GET | `/api/events` | SSE stream for live updates |
+
+## Docs
+
+- [Architecture](docs/ARCHITECTURE.md) — dispatch loop, heap ordering, retry model, DAG resolution, live-update pipeline
+- [Swagger](http://localhost:4000/api/docs) — interactive API reference (run locally)
 
 ## Configuration
 
