@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+*.js.map
+*.tsbuildinfo
+frontend/dist/
+frontend/node_modules/

@@ -1,0 +1,46 @@
+{
+  "name": "job-scheduler",
+  "version": "1.0.0",
+  "description": "Background job scheduler — heap-based priority queue, NestJS worker, retries/DLQ, DAG workflows, live SSE dashboard.",
+  "scripts": {
+    "build": "nest build",
+    "start:api": "node dist/main.js",
+    "start:worker": "node dist/worker.js",
+    "dev:api": "nest start --watch",
+    "dev:worker": "tsx watch src/worker.ts",
+    "dev": "concurrently -n api,worker -c blue,green \"npm:dev:api\" \"npm:dev:worker\"",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "benchmark": "tsx src/scheduler/benchmark.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/swagger": "^11.0.0",
+    "@nestjs/typeorm": "^11.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "ioredis": "^5.4.2",
+    "nestjs-pino": "^4.2.0",
+    "pg": "^8.13.0",
+    "pino": "^9.6.0",
+    "pino-http": "^10.3.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "typeorm": "^1.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "concurrently": "^9.0.0",
+    "pino-pretty": "^13.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
