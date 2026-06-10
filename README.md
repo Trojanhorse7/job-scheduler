@@ -71,9 +71,31 @@ docs/           Architecture notes
 | POST | `/api/workflows` | Create a DAG workflow |
 | GET | `/api/events` | SSE stream for live updates |
 
-## Docs
+## Architecture
 
-- [Architecture](docs/ARCHITECTURE.md) — dispatch loop, heap ordering, retry model, DAG resolution, live-update pipeline
+### System Overview
+![System Overview](docs/System%20Overview.png)
+
+### Request Flow — Creating a Job
+![Request Flow](docs/Request%20Flow%20-%20Creating%20a%20Job.png)
+
+### Job Status FSM
+![Job Status FSM](docs/Job%20Status%20FSM.png)
+
+### Worker Dispatch Loop
+![Worker Dispatch Loop](docs/Worker%20Dispatch%20Loop.png)
+
+### Retry & Backoff Model
+![Retry & Backoff Model](docs/Retry%20%26%20Backoff%20Model.png)
+
+### Redis Pub/Sub → SSE
+![Redis PubSub to SSE](docs/Redis%20PubSub%20to%20SSE.png)
+
+### Deployment Architecture
+![Deployment Architecture](docs/Deployment%20Architecture.png)
+
+---
+
 - [Swagger](http://localhost:4000/api/docs) — interactive API reference (run locally)
 
 ## Configuration
