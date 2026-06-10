@@ -75,12 +75,17 @@ export async function createWorkflow(data: Record<string, unknown>): Promise<unk
   return res.json();
 }
 
-export function subscribeToEvents(onEvent: () => void): () => void {
+export function subscribeToEvents(
+  onEvent: () => void,
+  onStatusChange?: (live: boolean) => void,
+): () => void {
   const es = new EventSource(`${API}/events`);
+  es.onopen = () => onStatusChange?.(true);
   es.onmessage = () => onEvent();
   es.onerror = () => {
+    onStatusChange?.(false);
     es.close();
-    setTimeout(() => subscribeToEvents(onEvent), 5000);
+    setTimeout(() => subscribeToEvents(onEvent, onStatusChange), 5000);
   };
   return () => es.close();
 }

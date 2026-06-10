@@ -37,7 +37,7 @@ export default function App() {
 
   useEffect(() => {
     refresh();
-    const unsub = subscribeToEvents(refresh);
+    const unsub = subscribeToEvents(refresh, setLive);
     return unsub;
   }, [refresh]);
 

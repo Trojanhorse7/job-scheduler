@@ -73,6 +73,7 @@ export class JobsService {
     );
     const stats: Record<string, number> = { dlq: Number(dlqRow[0].count) };
     for (const r of rows) stats[r.status] = Number(r.count);
+    stats.total = rows.reduce((sum, r) => sum + Number(r.count), 0);
     return stats;
   }
 }
