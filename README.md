@@ -2,6 +2,15 @@
 
 A production-grade background job scheduler built with NestJS, PostgreSQL, and Redis.
 
+## Submission
+
+| Resource | URL |
+|----------|-----|
+| **GitHub** | https://github.com/Trojanhorse7/job-scheduler |
+| **Live UI** | https://dilamme-job.duckdns.org |
+| **API docs (Swagger)** | https://dilamme-job.duckdns.org/api/docs |
+| **Health check** | https://dilamme-job.duckdns.org/api/health |
+
 ## Features
 
 - **Heap-based priority queue** — min-heap orders jobs by effective priority + scheduled time
@@ -9,7 +18,7 @@ A production-grade background job scheduler built with NestJS, PostgreSQL, and R
 - **Starvation prevention** — low-priority jobs age up after `AGING_THRESHOLD_SECONDS` seconds
 - **Retries with backoff** — exponential backoff + jitter, configurable `MAX_RETRIES`
 - **Dead-letter queue** — exhausted jobs move to DLQ; manual retry via API
-- **DLQ alerts** — hysteresis-guarded threshold alert logged when DLQ fills up
+- **DLQ alerts** — when DLQ count crosses threshold **10**, a structured `dlq.alert_sent` event is emitted (simulated email via pino logging + SSE); hysteresis prevents repeat alerts until the count drops below the threshold
 - **DAG workflows** — multi-step jobs with `dependsOn` key references
 - **Recurring jobs** — set `interval` (1 min / 5 min / 1 hr) for automatic rescheduling
 - **Cooperative cancellation** — API sets a flag; running handler checks and exits cleanly
@@ -96,7 +105,32 @@ docs/           Architecture notes
 
 ---
 
-- [Swagger](http://localhost:4000/api/docs) — interactive API reference (run locally)
+- [Swagger (local)](http://localhost:4000/api/docs) — interactive API reference
+- [Swagger (live)](https://dilamme-job.duckdns.org/api/docs)
+
+## Benchmark
+
+100,000 in-memory jobs. Run with `npm run benchmark` (local) or `npm run build && npm run benchmark:prod` (server).
+
+### Local (Windows dev machine)
+
+```
+Benchmark: 100,000 jobs
+  Binary Heap     : 2361.12 ms
+  Timing Wheel    : 2119.66 ms
+  Heap is 0.90x slower than timing wheel
+```
+
+### Server (VPS — dilamme-job.duckdns.org)
+
+```
+Benchmark: 100,000 jobs
+  Binary Heap     : 279.74 ms
+  Timing Wheel    : 75.68 ms
+  Heap is 0.27x slower than timing wheel
+```
+
+**Tradeoffs:** The binary heap is simpler and general-purpose — O(log n) insert/pop, minimal memory overhead. The timing wheel achieves O(1) inserts for jobs scheduled within its 60-second window, which makes it faster for dense near-future workloads at the cost of fixed slot memory. On both environments the timing wheel outperforms the heap; the gap is larger on the VPS. Production uses the heap by default (`SCHEDULER_ALGORITHM=heap`); switch to `timing_wheel` via env var.
 
 ## Configuration
 
@@ -110,5 +144,5 @@ All settings are in `.env.example`. Key variables:
 | `MAX_RETRIES` | `3` | Max attempts before DLQ |
 | `BACKOFF_BASE_SECONDS` | `5` | Exponential backoff base |
 | `AGING_THRESHOLD_SECONDS` | `60` | Priority boost interval |
-| `DLQ_ALERT_THRESHOLD` | `10` | Alert when DLQ exceeds this |
+| `DLQ_ALERT_THRESHOLD` | `10` | Email-style alert when DLQ exceeds this (structured log + SSE event) |
 | `STALE_LOCK_MS` | `60000` | Reset locks older than this |
