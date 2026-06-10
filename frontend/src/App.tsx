@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchStats,
   fetchJobs,
@@ -15,6 +15,13 @@ import {
 } from './api';
 
 type Tab = 'dashboard' | 'jobs' | 'create' | 'dlq';
+type ToastType = 'success' | 'error' | 'info';
+
+interface Toast {
+  id: number;
+  message: string;
+  type: ToastType;
+}
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('dashboard');
@@ -23,6 +30,14 @@ export default function App() {
   const [dlqJobs, setDlqJobs] = useState<Job[]>([]);
   const [statusFilter, setStatusFilter] = useState('');
   const [live, setLive] = useState(true);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const toastId = useRef(0);
+
+  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+    const id = ++toastId.current;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
+  }, []);
 
   const refresh = useCallback(async () => {
     const [s, j, d] = await Promise.all([
@@ -65,11 +80,44 @@ export default function App() {
           jobs={jobs}
           statusFilter={statusFilter}
           onFilterChange={setStatusFilter}
-          onCancel={async (id) => { await cancelJob(id); refresh(); }}
+          onCancel={async (id) => {
+            await cancelJob(id);
+            await refresh();
+            showToast('Job cancelled', 'info');
+          }}
         />
       )}
-      {tab === 'create' && <CreateJobForm onCreated={refresh} />}
-      {tab === 'dlq' && <DlqView jobs={dlqJobs} onRetry={async (id) => { await retryDlqJob(id); refresh(); }} />}
+      {tab === 'create' && (
+        <CreateJobForm
+          onCreated={async () => {
+            await refresh();
+            showToast('Job created — watch it run in the Jobs tab', 'success');
+            setTab('jobs');
+          }}
+          onError={(msg) => showToast(msg, 'error')}
+        />
+      )}
+      {tab === 'dlq' && (
+        <DlqView
+          jobs={dlqJobs}
+          onRetry={async (id) => {
+            await retryDlqJob(id);
+            await refresh();
+            showToast('Job re-queued from DLQ', 'info');
+          }}
+        />
+      )}
+
+      <div className="toast-stack">
+        {toasts.map((t) => (
+          <div key={t.id} className={`toast toast-${t.type}`}>
+            <span className="toast-icon">
+              {t.type === 'success' ? '✓' : t.type === 'error' ? '✕' : 'ℹ'}
+            </span>
+            {t.message}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -172,18 +220,24 @@ function JobsTable({
   );
 }
 
-function CreateJobForm({ onCreated }: { onCreated: () => void }) {
+function CreateJobForm({
+  onCreated,
+  onError,
+}: {
+  onCreated: () => void;
+  onError: (msg: string) => void;
+}) {
   const [type, setType] = useState('send_email');
   const [priority, setPriority] = useState(2);
   const [payload, setPayload] = useState('{"to": "test@gmail.com", "subject": "Welcome"}');
   const [scheduledAt, setScheduledAt] = useState('');
   const [interval, setInterval] = useState('');
   const [mode, setMode] = useState<'job' | 'workflow'>('job');
-  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setSubmitting(true);
     try {
       if (mode === 'workflow') {
         await createWorkflow({
@@ -211,7 +265,9 @@ function CreateJobForm({ onCreated }: { onCreated: () => void }) {
       }
       onCreated();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      onError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -260,9 +316,8 @@ function CreateJobForm({ onCreated }: { onCreated: () => void }) {
           <label>Payload (JSON){mode === 'workflow' && ' — email step'}</label>
           <textarea value={payload} onChange={(e) => setPayload(e.target.value)} />
         </div>
-        {error && <div className="error-box">{error}</div>}
-        <button type="submit" className="btn">
-          {mode === 'workflow' ? 'Create Workflow' : 'Create Job'}
+        <button type="submit" className="btn" disabled={submitting}>
+          {submitting ? 'Creating…' : mode === 'workflow' ? 'Create Workflow' : 'Create Job'}
         </button>
       </form>
     </div>
