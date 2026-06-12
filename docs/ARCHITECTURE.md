@@ -90,6 +90,20 @@ Scheduled jobs only enter the candidate set when `scheduled_at <= NOW()`. Recurr
 
 Low-priority jobs cannot wait forever. Every `AGING_THRESHOLD_SECONDS` (60 s) waited, `effective_priority` improves by one level. A LOW job (3) reaches HIGH (1) after 120 s, guaranteeing eventual execution.
 
+**Aging formula** (`src/scheduler/types.ts`):
+
+```typescript
+const waitSeconds = (now - createdAt) / 1000;
+const boost = Math.floor(waitSeconds / AGING_THRESHOLD_SECONDS);
+effectivePriority = Math.max(1, basePriority - boost);
+```
+
+| Wait time | LOW (3) effective priority |
+|-----------|---------------------------|
+| 0 s | 3 (Low) |
+| 60 s | 2 (Medium) |
+| 120 s | 1 (High) — guaranteed to run next |
+
 ---
 
 ## 5. Timing wheel (alternative algorithm)
